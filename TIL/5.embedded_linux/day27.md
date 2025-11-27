@@ -72,6 +72,10 @@ $ hello world
 
 - mount
 
+- w
+- stat
+
+
 ## 파일 시스템
 
 ### 리눅스 시스템 구성 요소
