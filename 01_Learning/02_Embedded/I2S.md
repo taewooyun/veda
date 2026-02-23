@@ -34,9 +34,7 @@ SPI 기반 확장 구조이지만, **음성/음악 전용 규격**
 | **SD** | Serial Data | 오디오 데이터 |
 | **MCLK** | Master Clock | 기준 클럭 (옵션) |
 
----
-
-### 📌 주요 특징
+### 주요 특징
 
 ### BCLK
 
@@ -61,7 +59,7 @@ SPI 기반 확장 구조이지만, **음성/음악 전용 규격**
 
 ---
 
-## 3. 동작 개념 (한 줄 요약)
+## 3. 동작 개념
 
 ```
 LRCK 전환
@@ -76,11 +74,11 @@ SD 비트 전송
 - 프레임 단위 전송
 - 연속 데이터 흐름
 
-👉 **한 프레임 = Left + Right 샘플**
+**→ 한 프레임 = Left + Right 샘플**
 
 ---
 
-## 4. I2S 데이터 타이밍 (중요 ⭐)
+## 4. I2S 데이터 타이밍
 
 ### Philips I2S 표준 기준
 
@@ -90,8 +88,6 @@ SD 비트 전송
 | 시작 위치 | LRCK 전환 후 1bit 뒤 |
 | 패딩 | 남는 비트는 0 |
 
-📌 핵심:
-
 > **LRCK 바뀌고 → 한 비트 쉬고 → 데이터 시작**
 > 
 
@@ -99,16 +95,16 @@ SD 비트 전송
 
 ---
 
-## 5. CubeIDE 설정 순서 (중요 ⭐)
+## 5. CubeIDE 설정 순서
 
-### 1️⃣ SPI → I2S 모드 변경
+### 1) SPI → I2S 모드 변경
 
 - SPI2 / SPI3 선택
 - Mode → **I2S**
 
 ---
 
-### 2️⃣ I2S 설정
+### 2) I2S 기본 설정
 
 | 항목 | 설정값 |
 | --- | --- |
@@ -118,27 +114,25 @@ SD 비트 전송
 | Audio Freq | 44.1kHz |
 | MCLK | Disable |
 
-👉 처음엔 무조건 위 세팅 추천
-
 ---
 
-### 3️⃣ DMA 설정 (필수)
-
-- SPIx_TX → DMA Enable
-- Mode: Circular / Normal
-- Priority: High
-
-📌 DMA 없으면 실시간 처리 불가
-
----
-
-### 4️⃣ GPIO
+### 3) GPIO
 
 | 핀 | 설정 |
 | --- | --- |
 | BCLK | AF |
 | LRCK | AF |
 | SD | AF |
+
+---
+
+### +) DMA 설정
+
+- SPIx_TX → DMA Enable
+- Mode: Circular / Normal
+- Priority: High
+
+📌 DMA 없으면 실시간 처리 불가
 
 ---
 
@@ -150,17 +144,17 @@ SD 비트 전송
 HAL_I2S_Transmit(&hi2s2, audio_buf, BUF_SIZE, HAL_MAX_DELAY);
 ```
 
-👉 Blocking 방식 (실무 거의 안 씀)
+→ Blocking 방식 (실무 거의 안 씀)
 
 ---
 
-### DMA 전송 (실무 표준)
+### DMA 전송
 
 ```c
 HAL_I2S_Transmit_DMA(&hi2s2, audio_buf, BUF_SIZE);
 ```
 
-📌 이게 메인 루트
+→ 보편적인 사용법
 
 ---
 
@@ -178,7 +172,6 @@ void make_test_data(void)
         audio_buf[i] = (i%32)*1000;
     }
 }
-
 ```
 
 ---
@@ -193,7 +186,6 @@ HAL_StatusTypeDef HAL_I2S_Transmit_DMA(
     uint16_t *pData,
     uint16_t Size
 );
-
 ```
 
 | 인자 | 의미 |
@@ -267,26 +259,22 @@ DMA 수신 → 필터 → 저장
 
 ## 10. 자주 터지는 문제
 
-### ❌ 소리 안 남
+### 소리 안 남
 
 - I2S 아닌 SPI 모드
 - 핀 매핑 오류
 
-### ❌ 잡음
+### 잡음
 
 - 샘플레이트 불일치
 - DMA underrun
 
-### ❌ 좌우 이상
+### 좌우 이상
 
 - LRCK 극성 문제
 
-### ❌ 끊김
+### 끊김
 
 - 버퍼 크기 부족
 
 ---
-
-### 참고
-
-https://velog.io/@ckstn0779/Audio-MAX98357A-Speaker
